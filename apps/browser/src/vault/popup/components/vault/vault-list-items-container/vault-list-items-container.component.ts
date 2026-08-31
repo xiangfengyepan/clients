@@ -213,6 +213,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   readonly collapsibleKey = input<keyof PopupSectionOpen | undefined>(undefined);
 
   /**
+   * Hide the section header entirely. Used when the surrounding UI already labels the group, such
+   * as a node of the vault tree.
+   */
+  readonly hideHeader = input(false, { transform: booleanAttribute });
+
+  /**
    * Optional description for the vault list item section. Will be shown below the title even when
    * no ciphers are available.
    */

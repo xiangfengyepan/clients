@@ -19,9 +19,11 @@
         <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
       </bit-disclosure>
     } @else {
-      <div class="tw-pl-1 tw-mb-0.5">
-        <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
-      </div>
+      @if (!hideHeader()) {
+        <div class="tw-pl-1 tw-mb-0.5">
+          <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
+        </div>
+      }
       <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
       <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
     }

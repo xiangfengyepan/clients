@@ -1,0 +1,54 @@
+<div class="tw-flex tw-flex-col">
+  @for (node of tree().nodes; track node.id) {
+    <ng-container
+      [ngTemplateOutlet]="treeNode"
+      [ngTemplateOutletContext]="{ $implicit: node }"
+    ></ng-container>
+  }
+
+  @if (tree().ciphers.length > 0) {
+    <app-vault-list-items-container
+      [ciphers]="tree().ciphers"
+      hideHeader
+      disableSectionMargin
+    ></app-vault-list-items-container>
+  }
+</div>
+
+<ng-template #treeNode let-node>
+  <button
+    type="button"
+    data-testid="vault-tree-node"
+    class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-md tw-border-0 tw-bg-transparent tw-px-1 tw-py-1 tw-text-main hover:tw-bg-primary-100 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
+    [attr.aria-expanded]="expanded(node.id)"
+    (click)="toggleNode(node.id)"
+  >
+    <bit-icon
+      [name]="expanded(node.id) ? 'bwi-angle-down' : 'bwi-angle-right'"
+      class="tw-text-muted"
+      aria-hidden="true"
+    ></bit-icon>
+    <bit-icon [name]="node.icon" class="tw-text-muted" aria-hidden="true"></bit-icon>
+    <span bitTypography="h6" class="tw-flex-1 tw-truncate tw-text-left">{{ node.name }}</span>
+    <span bitTypography="body2" class="tw-pr-1 tw-text-muted">{{ node.count }}</span>
+  </button>
+
+  @if (expanded(node.id)) {
+    <div class="tw-pl-3">
+      @for (child of node.children; track child.id) {
+        <ng-container
+          [ngTemplateOutlet]="treeNode"
+          [ngTemplateOutletContext]="{ $implicit: child }"
+        ></ng-container>
+      }
+
+      @if (node.ciphers.length > 0) {
+        <app-vault-list-items-container
+          [ciphers]="node.ciphers"
+          hideHeader
+          disableSectionMargin
+        ></app-vault-list-items-container>
+      }
+    </div>
+  }
+</ng-template>

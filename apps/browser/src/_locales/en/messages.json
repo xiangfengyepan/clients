@@ -7965,5 +7965,11 @@
   },
   "youreAllSet": {
     "message": "You're all set!"
+  },
+  "switchToTreeView": {
+    "message": "Switch to folder view"
+  },
+  "switchToListView": {
+    "message": "Switch to list view"
   }
 }

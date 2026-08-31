@@ -68,6 +68,10 @@ import { VaultPopupItemsService } from "../../services/vault-popup-items.service
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import {
+  VaultPopupViewModeService,
+  VaultViewMode,
+} from "../../services/vault-popup-view-mode.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
@@ -80,6 +84,7 @@ import {
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { VaultTreeViewComponent } from "./vault-tree-view/vault-tree-view.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -121,6 +126,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
     VaultOrganizationUserNotificationsComponent,
+    VaultTreeViewComponent,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
@@ -170,6 +176,18 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
+
+  private readonly viewModeService = inject(VaultPopupViewModeService);
+
+  /** Emits true when the vault should be rendered as a folder/collection tree instead of a list. */
+  protected showTree$ = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.VaultTreeViewInExtension),
+    this.viewModeService.viewMode$,
+  ]).pipe(
+    map(([enabled, viewMode]) => enabled && viewMode === VaultViewMode.Tree),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   protected showPremiumSpotlight$ = combineLatest([
     this.activeUserId$.pipe(

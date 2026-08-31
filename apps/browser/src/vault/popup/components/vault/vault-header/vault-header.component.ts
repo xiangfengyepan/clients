@@ -5,6 +5,8 @@ import { Component, inject, NgZone, ViewChild } from "@angular/core";
 import { combineLatest, map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DisclosureComponent,
@@ -14,6 +16,10 @@ import {
 
 import { runInsideAngular } from "../../../../../platform/browser/run-inside-angular.operator";
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
+import {
+  VaultPopupViewModeService,
+  VaultViewMode,
+} from "../../../services/vault-popup-view-mode.service";
 import { VaultListFiltersComponent } from "../vault-list-filters/vault-list-filters.component";
 import { VaultSearchComponent } from "../vault-search/vault-search.component";
 
@@ -67,10 +73,27 @@ export class VaultHeaderComponent {
     }),
   );
 
+  private readonly configService = inject(ConfigService);
+  private readonly viewModeService = inject(VaultPopupViewModeService);
+
+  protected readonly VaultViewMode = VaultViewMode;
+
+  /** Emits true when the list/tree view toggle is available. */
+  protected readonly treeViewEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultTreeViewInExtension,
+  );
+
+  protected readonly viewMode$ = this.viewModeService.viewMode$;
+
   constructor(
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
     private i18nService: I18nService,
   ) {}
+
+  /** Switches the vault between the flat list and the folder tree. */
+  toggleViewMode() {
+    this.viewModeService.toggleViewMode();
+  }
 
   async toggleFilters(isShown: boolean) {
     await this.vaultPopupListFiltersService.updateFilterVisibility(isShown);

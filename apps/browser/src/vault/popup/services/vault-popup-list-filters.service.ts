@@ -45,7 +45,6 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CIPHER_MENU_ITEMS,
@@ -55,6 +54,7 @@ import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-l
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
+import { getNestedFolderTree } from "../utils/vault-tree";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
@@ -78,9 +78,6 @@ export type PopupListFilter = {
   folder: FolderView | null;
   cipherType: CipherType | null;
 };
-
-/** Delimiter that denotes a level of nesting  */
-const NESTING_DELIMITER = "/";
 
 /** Id assigned to the "My vault" organization */
 export const MY_VAULT_ID = "MyVault";
@@ -461,7 +458,7 @@ export class VaultPopupListFiltersService {
           });
         }),
         map((folders) => {
-          const nestedFolders = this.getAllFoldersNested(folders);
+          const nestedFolders = getNestedFolderTree(folders);
           return new DynamicTreeNode<FolderView>({
             fullList: folders,
             nestedList: nestedFolders,
@@ -543,26 +540,6 @@ export class VaultPopupListFiltersService {
         ? item.children.map((i) => this.convertToChipFilterOption(i, icon))
         : undefined,
     };
-  }
-
-  /**
-   * Returns a nested folder structure based on the input FolderView array
-   */
-  private getAllFoldersNested(folders: FolderView[]): TreeNode<FolderView>[] {
-    const nodes: TreeNode<FolderView>[] = [];
-
-    folders.forEach((f) => {
-      const folderCopy = new FolderView();
-      folderCopy.id = f.id;
-      folderCopy.revisionDate = f.revisionDate;
-
-      // Remove "/" from beginning and end of the folder name
-      // then split the folder name by the delimiter
-      const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NESTING_DELIMITER) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NESTING_DELIMITER);
-    });
-
-    return nodes;
   }
 
   /**
