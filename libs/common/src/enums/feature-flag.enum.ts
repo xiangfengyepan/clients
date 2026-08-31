@@ -198,7 +198,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
   [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
-  [FeatureFlag.VaultTreeViewInExtension]: FALSE,
+  [FeatureFlag.VaultTreeViewInExtension]: true,
 
   /* Auth */
   [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
